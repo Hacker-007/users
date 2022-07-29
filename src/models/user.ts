@@ -10,3 +10,4 @@ export const UserSchema = object({
 })
 
 export type User = Zod.infer<typeof UserSchema>
+export type UserWithoutId = Omit<User, 'id'>
