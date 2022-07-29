@@ -1,31 +1,57 @@
+import UserDatabaseProvider from '@src/database/userDatabaseProvider'
 import { User, UserSchema } from '@src/models/user'
 import { APIError } from '@src/utils/errors'
 import { validateAgainstSchema } from '@src/validation'
-import { Result } from 'neverthrow'
+import { okAsync, errAsync, fromPromise, ResultAsync } from 'neverthrow'
 
-export default class UserService {
-  private static _instance: UserService
+export interface IUserService {
+  getUserById(id: unknown): ResultAsync<User, APIError>
+}
 
-  static get instance() {
-    if (this._instance === undefined || this._instance === null) {
-      this._instance = new this()
-    }
+export class UserService implements IUserService {
+  constructor(private readonly userProvider: UserDatabaseProvider) {}
 
-    return this._instance
-  }
-
-  async getUserById(id: unknown): Promise<Result<User, APIError>> {
-    const validationResult = await validateAgainstSchema(
+  getUserById(id: unknown): ResultAsync<User, APIError> {
+    const validationResult = validateAgainstSchema(
       { id },
       UserSchema.pick({ id: true })
     )
 
-    return validationResult.map(({ id }) => ({
-      id,
-      email: 'revanthpothukuchi123@gmail.com',
-      firstName: 'Revanth',
-      lastName: 'Pothukuchi',
-      middleInitial: 'V',
-    }))
+    return validationResult.andThen(({ id }) =>
+      fromPromise<User, APIError>(
+        this.userProvider.getUserById(id),
+        (error) => ({
+          errorId: 'database',
+          errorMessage: (error as Error).message,
+        })
+      )
+    )
+  }
+}
+
+export class MockUserService implements IUserService {
+  private readonly inMemoryUserStore: Record<string, User>
+
+  constructor() {
+    this.inMemoryUserStore = {}
+  }
+
+  getUserById(id: unknown): ResultAsync<User, APIError> {
+    const validationResult = validateAgainstSchema(
+      { id },
+      UserSchema.pick({ id: true })
+    )
+
+    return validationResult.andThen<User, APIError>(({ id }) => {
+      const user = this.inMemoryUserStore[id]
+      if (user === undefined) {
+        return errAsync({
+          errorId: 'notFound',
+          errorMessage: `The user with the id \`${id}\` could not be found.`,
+        })
+      } else {
+        return okAsync(user)
+      }
+    })
   }
 }

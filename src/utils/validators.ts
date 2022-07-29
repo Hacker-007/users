@@ -1,4 +1,3 @@
-import { err, Result } from 'neverthrow'
 import { setErrorMap, ZodError, ZodErrorMap, ZodIssue, ZodIssueCode } from 'zod'
 import { APIError, APIValidationIssue } from './errors'
 
@@ -30,7 +29,7 @@ const getValidationErrorType = (issue: ZodIssue) => {
 
 export function getValidationErrorResponse<T>(
   validationError: ZodError<T>
-): Result<never, APIError> {
+): APIError {
   const issues: APIValidationIssue[] = validationError.issues.map(
     (issue: ZodIssue) => {
       const propertyName = issue.path.join('.')
@@ -41,8 +40,8 @@ export function getValidationErrorResponse<T>(
     }
   )
 
-  return err({
+  return {
     errorId: 'validation',
     issues,
-  })
+  }
 }

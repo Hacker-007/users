@@ -3,15 +3,16 @@ import helmet from 'helmet'
 import { Server } from 'http'
 import routeLogger from './routeLogger'
 import setupRoutes from '@src/routes'
+import { IUserService } from '@src/service/userService'
 
-export function createServer() {
+export function createServer(userService: IUserService) {
   const app = express()
   app.use(express.json())
   app.use(helmet())
   app.use(handleErrors)
   app.use(routeLogger)
 
-  app.use('/api/v1', setupRoutes())
+  app.use('/api/v1', setupRoutes(userService))
 
   return app
 }

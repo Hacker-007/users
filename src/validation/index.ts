@@ -1,19 +1,19 @@
 import { APIError } from '@src/utils/errors'
 import { getValidationErrorResponse } from '@src/utils/validators'
-import { ok, Result } from 'neverthrow'
-import { ZodSchema } from 'zod'
+import { ResultAsync } from 'neverthrow'
+import { ZodError, ZodSchema } from 'zod'
 import { uuid } from './helpers'
 
-export async function validateAgainstSchema<T>(
+export function validateAgainstSchema<T>(
   data: unknown,
   schema: ZodSchema<T>
-): Promise<Result<T, APIError>> {
-  const parseResult = await schema.safeParseAsync(data)
-  if (parseResult.success) {
-    return ok(parseResult.data)
-  }
+): ResultAsync<T, APIError> {
+  const parseResult = ResultAsync.fromPromise(
+    schema.parseAsync(data),
+    (error) => error as ZodError
+  )
 
-  return getValidationErrorResponse(parseResult.error)
+  return parseResult.mapErr((error) => getValidationErrorResponse(error))
 }
 
 export { uuid }

@@ -1,7 +1,16 @@
-type APIError = {
-  errorId: 'validation'
-  issues: APIValidationIssue[]
-}
+type APIError =
+  | {
+      errorId: 'validation'
+      issues: APIValidationIssue[]
+    }
+  | {
+      errorId: 'database'
+      errorMessage: string
+    }
+  | {
+      errorId: 'notFound'
+      errorMessage: string
+    }
 
 interface APIValidationIssue {
   validationErrorType: string
