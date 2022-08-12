@@ -13,11 +13,10 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "plugins": ["@typescript-eslint", "neverthrow"],
+  "plugins": ["@typescript-eslint"],
   "rules": {
     "linebreak-style": ["error", "unix"],
     "quotes": ["error", "single"],
-    "semi": ["error", "never"],
-    "neverthrow/must-use-result": "error"
+    "semi": ["error", "never"]
   }
 }
