@@ -1,4 +1,4 @@
-type APIError =
+type APIErrorType =
   | {
       errorId: 'validation'
       issues: APIValidationIssue[]
@@ -17,8 +17,17 @@ interface APIValidationIssue {
   issueMessage: string
 }
 
+class APIError extends Error {
+  readonly errorType: APIErrorType
+
+  constructor(errorType: APIErrorType) {
+    super()
+    this.errorType = errorType
+  }
+}
+
 function getHttpErrorStatusCode(error: APIError): number {
-  if (error.errorId === 'validation') {
+  if (error.errorType.errorId === 'validation') {
     return 400
   }
 

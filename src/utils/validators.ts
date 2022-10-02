@@ -40,8 +40,8 @@ export function getValidationErrorResponse<T>(
     }
   )
 
-  return {
+  return new APIError({
     errorId: 'validation',
     issues,
-  }
+  })
 }

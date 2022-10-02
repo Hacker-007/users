@@ -1,6 +1,6 @@
 import { createServer } from '../utils/server'
 import request from 'supertest'
-import { MockUserService } from '@src/service/userService'
+import { MockUserService } from '@src/service/mockUserService'
 
 describe('Health Endpoint (/health)', () => {
   it('GET /health should return OK', async () => {
